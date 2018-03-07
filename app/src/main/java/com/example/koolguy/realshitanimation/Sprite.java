@@ -19,11 +19,10 @@ public class Sprite {
     private ArrayList<Rect> LEFT;       //в массивах прямоугольники,части картинки битмап
     private ArrayList<Rect> RIGHT;
     private Bitmap bitmap;
-    private Rect destination;
+    private Rect destination,gameview;
     private int x,y;
     private int lastDirection;
     private int x_frame,y_frame;
-
     public int getY() {
         return y;
     }
@@ -76,6 +75,7 @@ public class Sprite {
         this.x = x;
         this.y = y;
         currentframe=0;
+        gameview = Game_view.gameView();
 
 
     }
@@ -122,50 +122,18 @@ public class Sprite {
                 canvas.drawBitmap(bitmap,DOWN.get(currentframe),destination,p);break;
             case 1:
                 canvas.drawBitmap(bitmap,UP.get(currentframe),destination,p);break;
+
         }
 
         p.setTextSize(65);
 
-        canvas.drawText(y_frame+" "+x_frame,55,100,p);
+        canvas.drawText(""+gameview.right,55,100,p);
     }
 
-    public boolean touchListener(int x,int y,boolean touch)                  //direction = 0(stop),1(up),2(down),3(left),4(right)
-    { int view_width = Game_view.getView_width();
-      int view_height = Game_view.getView_height();
+    public void touchListener(int direction)                  //direction = 0(stop),1(up),2(down),3(left),4(right)
+    {
 
-      if(y>view_height/3 - 120&&y<view_height/3 * 2+119&&x>=view_width/2+1&&touch==true)
-      {
-
-          direction = 4;
-          if(lastDirection!=direction) ChangeDirection();
-
-          return true;
-      }
-      if (y>view_height/3 - 120&&y<view_height/3 * 2+119&&x<=view_width/2-1)//2.каждый if выбирает одну из кнопок, просто скопировал координаты из game_view
-      {
-
-          direction =3 ;
-          if(lastDirection!=direction) ChangeDirection();
-
-          return true;
-      }
-      if (y<=view_height/3 - 120)
-      {
-
-          direction = 1;
-          if(lastDirection!=direction) ChangeDirection();
-          return true;
-      }
-      if (y>=view_height/3 * 2+120)
-      {
-
-          direction = 2;
-          if(lastDirection!=direction) ChangeDirection();
-          return true;
-      }
-      else return false;
-
-
+           this.direction=direction;
 
     }
     public Rect getBoundBox()
@@ -177,11 +145,12 @@ public class Sprite {
     {
 
 
-      if(direction == 4 ) x+=30;
-      if (direction==3) x-=30;
-      if (direction==1)y-=30;               //происходит при каждом тике
-      if(direction==2)y+=30;
-      currentframe = (currentframe+1)%4;
+      if(direction == 4&&destination.right<=Game_view.getView_width())  {x+=30;currentframe = (currentframe+1)%4;}
+      if (direction==3&&destination.left>=0) {x-=30;currentframe = (currentframe+1)%4;}
+      if (direction==1&&destination.top>=0){y-=30;currentframe = (currentframe+1)%4;}               //происходит при каждом тике
+      if(direction==2&&destination.bottom<=Game_view.getView_height()-400){y+=30;currentframe = (currentframe+1)%4;}
+
+
     }
     public void ChangeDirection() //надо чтоб каждое движение начиналось с 1 спрайт(смотри картинку)
     {

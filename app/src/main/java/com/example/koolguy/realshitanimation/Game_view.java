@@ -23,6 +23,7 @@ public class Game_view extends View {
     private Sprite sprite;
     private  Enemy enemy;
     int track;
+    Rect up,down,left,right;
 
     Timer t ;
 
@@ -31,6 +32,7 @@ public class Game_view extends View {
         super(context);
         Bitmap b = BitmapFactory.decodeResource(getResources(),R.drawable.ttt);
         sprite = new Sprite(b,35,35);
+
         Bitmap b1 = BitmapFactory.decodeResource(getResources(),R.drawable.enemy);
         enemy = new Enemy(b1,1000,1000);
         t = new Timer(Long.MAX_VALUE,150);
@@ -54,42 +56,69 @@ public class Game_view extends View {
         Paint p = new Paint();
         p.setColor(Color.RED );
         p.setTextSize(55);
-        canvas.drawText(view_height+" "+view_width,200,200,p);
-        canvas.drawRect(view_width*0,view_height*0,view_width,view_height/3 - 120,p);//up
-        canvas.drawRect(view_width*0,view_height/3 * 2+120,view_width, view_height,p);// down
+        up = new Rect(200,view_height-400,350,view_height-250);
+        down = new Rect(200,view_height-249,350,view_height-99);
+        right = new Rect(351,view_height-325,501,view_height-175);
+        left = new Rect(49,view_height-325,199,view_height-175);
+        canvas.drawText(" "+gameView().left,200,200,p);
+        canvas.drawRect(up,p);//up
+        canvas.drawRect(down,p);// down
         p.setColor(Color.BLUE);
-        canvas.drawRect(view_width/2+1,view_height/3 - 119,view_width,view_height/3 * 2+119,p);//right
-        canvas.drawRect(view_width*0,view_height/3 - 119,view_width/2-1,view_height/3 * 2+119,p);//left
+        canvas.drawRect(right,p);//right
+        canvas.drawRect(left,p);//left
+
         Rect enemyrect = enemy.getBoundBox();
         Rect hero = sprite.getBoundBox();
-        if(hero.intersect(enemyrect))
+        /*if(hero.intersect(enemyrect))
         {
             sprite.setY((int) Math.floor(Math.random() * 1000));
             sprite.setX((int) Math.floor(Math.random() * 1000));
 
             invalidate();
 
-        }
+        }*/
         sprite.Draw(canvas);
-        enemy.draw(canvas);
+        //enemy.draw(canvas);
     }
     public static int getView_height(){return view_height;}
     public static int getView_width(){return view_width;}
+    public static Rect gameView(){return new Rect(0,0,view_width,view_height-401);}
     @Override
     public boolean onTouchEvent(MotionEvent event) {
 
         int x = (int)event.getX();
-        int y = (int)event.getY();
+        int y = (int)event.getY();                                              //direction = 0(stop),1(up),2(down),3(left),4(right)
         long time = event.getDownTime();
 
         switch (event.getAction())
         {
             case MotionEvent.ACTION_DOWN:
-                    if(sprite.touchListener(x,y,true)){
-                    t.start();invalidate();}
+                if(right.contains(x,y))
+                {
+                    sprite.touchListener(4);
+                    t.start();
+                    invalidate();
+                }
+                if(left.contains(x,y))
+                {
+                    sprite.touchListener(3);
+                    t.start();
+                    invalidate();
+                }
+                if(up.contains(x,y))
+                {
+                    sprite.touchListener(1);
+                    t.start();
+                    invalidate();
+                }
+                if(down.contains(x,y))
+                {
+                    sprite.touchListener(2);
+                    t.start();
+                    invalidate();
+                }
                 break;
             case MotionEvent.ACTION_UP:
-                sprite.touchListener(x,y,false);
                  t.cancel();
                 break;
 
@@ -115,8 +144,8 @@ public class Game_view extends View {
 
         @Override
         public void onTick(long l) {
-            sprite.update();
 
+            sprite.update();
             invalidate();
             track++;
 
